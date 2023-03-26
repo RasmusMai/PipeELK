@@ -23,6 +23,9 @@ ELASTIC_PASSWORD: "elastic1234"
 # Kibana
 NGINX_CERTIFICATE_PATH: "/etc/nginx/ssl/kibby.cloud.aoi.ee.crt"
 NGINX_CERTIFICATE_KEY_PATH: "/etc/nginx/ssl/kibby.cloud.aoi.ee.key"
+HTPASSWD_ACCOUNT: "PipeKibana:$apr1$ic5qtdws$54YFpvEAfp9ZY/r3.FCfd/"
+KIBANA_WEB_USER: "PipeKibana"
+KIBANA_WEB_PASSWORD: "KibanaDrive"
 
 # Logstash
 LOGSTASH_LISTEN_PORT: 5044

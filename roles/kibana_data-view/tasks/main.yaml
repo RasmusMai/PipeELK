@@ -20,6 +20,8 @@
       - 200 
       - 404
     validate_certs: no
+    url_username: "{{ KIBANA_WEB_USER }}"
+    url_password: "{{ KIBANA_WEB_PASSWORD }}"
   register: filebeat_data_view_response
   changed_when: false
   when: filebeat_index_response.json | selectattr('index', 'search', 'filebeat') | list | length > 0
@@ -39,5 +41,7 @@
       kbn-xsrf: "ansible"
     body: "{{ lookup('file', 'filebeat-data-view.json') }}"
     body_format: json
+    url_username: "{{ KIBANA_WEB_USER }}"
+    url_password: "{{ KIBANA_WEB_PASSWORD }}"
   register: filebeat_data_view_response
   when: filebeat_data_view_response.json.data_view | selectattr('title', 'search', 'filebeat') | list | length == 0
