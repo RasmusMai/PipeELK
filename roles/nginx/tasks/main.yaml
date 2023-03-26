@@ -1,0 +1,58 @@
+---
+
+- name: Install nginx
+  ansible.builtin.apt:
+    update_cache: true
+    name: nginx
+    state: present
+
+- name: Copy template
+  ansible.builtin.template:
+    src: kibana.j2
+    dest: /etc/nginx/sites-available/kibana
+    owner: root
+    group: root
+    mode: 0644
+  notify: Reload nginx
+
+- name: Ensure certificate directory exists
+  ansible.builtin.file:
+    path: /etc/nginx/ssl
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+# https://docs.ansible.com/ansible/latest/collections/community/crypto/docsite/guide_selfsigned.html
+- name: Create private key (RSA, 4096 bits)
+  community.crypto.openssl_privatekey:
+    path: "{{ NGINX_CERTIFICATE_KEY_PATH }}"
+
+- name: Create certificate signing request (CSR) for self-signed certificate
+  community.crypto.openssl_csr_pipe:
+    common_name: kibana.cloud.aoi.ee
+    organization_name: some kinda company
+    privatekey_path: "{{ NGINX_CERTIFICATE_KEY_PATH }}"
+    subject_alt_name:
+      - "DNS:{{ KIBANA_FQDN }}"
+      - "DNS:www.{{ KIBANA_FQDN }}"
+  register: csr
+
+- name: Generate self-signed SSL certificate
+  community.crypto.x509_certificate:
+    path: "{{ NGINX_CERTIFICATE_PATH }}"
+    privatekey_path: "{{ NGINX_CERTIFICATE_KEY_PATH }}"
+    csr_content: "{{ csr.csr }}"
+    provider: selfsigned
+  changed_when: false
+
+- name: Enable site
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/kibana
+    dest: /etc/nginx/sites-enabled/kibana
+    state: link
+
+- name: Disable default site
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent

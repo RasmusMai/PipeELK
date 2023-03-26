@@ -1,0 +1,5 @@
+---
+collections:
+- name: community.digitalocean
+  version: 1.23.0 
+- name: community.crypto

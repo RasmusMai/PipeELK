@@ -1,0 +1,21 @@
+---
+
+- name: Destroy droplets
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - secret.yaml
+  tasks:
+    - name: Destroy droplets
+      community.digitalocean.digital_ocean_droplet:
+        name: "{{ item.droplet_name }}"
+        oauth_token: "{{ DIGITALOCEAN_API_TOKEN }}"
+        unique_name: true
+        state: absent
+      loop:
+        - { droplet_name: "elastic01" }
+        - { droplet_name: "elastic02" }
+        - { droplet_name: "elastic03" }
+        - { droplet_name: "kibana" }
+        - { droplet_name: "logstash" }

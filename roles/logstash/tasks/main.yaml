@@ -1,0 +1,7 @@
+
+
+- name: Install Logstash
+  ansible.builtin.apt:
+    update_cache: true
+    name: kibana
+    state: present

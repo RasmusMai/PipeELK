@@ -1,0 +1,52 @@
+---
+
+- name: "Create ssh key"
+  community.digitalocean.digital_ocean_sshkey:
+    state: present
+    oauth_token: "{{ DIGITALOCEAN_API_TOKEN }}"
+    name: "My SSH Public Key"
+    ssh_pub_key: "{{ SSH_PUBLIC_KEY }}"
+  register: ssh_session
+
+- name: Create Droplets
+  community.digitalocean.digital_ocean_droplet:
+    state: present
+    oauth_token: "{{ DIGITALOCEAN_API_TOKEN }}"
+    name: "{{ item.droplet_name }}"
+    size: s-2vcpu-4gb
+    region: "{{ DIGITALOCEAN_REGION }}"
+    image: "{{ DIGITALOCEAN_IMAGE }}"
+    wait_timeout: 500
+    ssh_keys: ["{{ ssh_session.data.ssh_key.id }}"]
+    project: "{{ DIGITALOCEAN_PROJECT_NAME }}"
+    unique_name: true
+  loop:
+    - { droplet_name: "elastic01" }
+    - { droplet_name: "elastic02" }
+    - { droplet_name: "elastic03" }
+    - { droplet_name: "kibana" }
+    - { droplet_name: "logstash" }
+  register: droplets
+
+- name: Add hosts
+  ansible.builtin.add_host:
+    name: "{{ item.data.droplet.name }}"
+    ansible_python_interpreter: /usr/bin/python3
+    ansible_ssh_host: "{{ (item.data.droplet.networks.v4 | selectattr('type', 'equalto', 'public')).0.ip_address | default('<none>', true) }}"
+    ansible_ssh_user: root
+    ansible_ssh_private_key_file: "{{ SSH_PRIVATE_KEY }}"
+    # private_address is a bit redundant, but it simplifies so much!
+    private_address: "{{ (item.data.droplet.networks.v4 | selectattr('type', 'equalto', 'private')).0.ip_address | default('<none>', true) }}"
+    groups:
+      - droplets
+  loop: "{{ droplets.results }}"
+  changed_when: false  # Only the in-memory inventory is being updated
+
+# - name: Create A record for kibana
+#   community.digitalocean.digital_ocean_domain_record:
+#     state: present
+#     oauth_token: "{{ DIGITALOCEAN_API_TOKEN }}"
+#     domain: "{{ DOMAIN_NAME }}"
+#     type: A
+#     name: kibana
+#     data: "{{ (droplets.results | selectattr('data.droplet.name', 'equalto', 'kibana')).0.data.droplet.networks.v4 | selectattr('type', 'equalto', 'public')).0.ip_address | default('<none>', true) }}"

@@ -1,0 +1,23 @@
+---
+
+- name: Upgrade all apt packages
+  ansible.builtin.apt:
+    upgrade: dist
+    update_cache: true
+    cache_valid_time: 3600
+    state: latest
+
+- name: Ensure apt-transports-https exists
+  ansible.builtin.apt:
+    name: apt-transport-https
+    state: present
+
+- name: Add Elastic's apt key
+  ansible.builtin.apt_key:
+    url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    state: present
+
+- name: Add Elastic's apt repository
+  ansible.builtin.apt_repository:
+    repo: deb https://artifacts.elastic.co/packages/8.x/apt stable main
+    state: present

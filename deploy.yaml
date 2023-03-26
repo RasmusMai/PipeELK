@@ -1,0 +1,49 @@
+---
+
+- name: Initialize droplets
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - secret.yaml
+  roles:
+    - digitalocean
+
+- name: Droplet base configuration
+  hosts: droplets
+  become: true
+  gather_facts: false
+  roles:
+    - common
+
+- name: Install and Configure elasticsearch
+  hosts:
+    - elastic01
+    - elastic02
+    - elastic03
+  become: true
+  gather_facts: true
+  roles:
+    - elastic
+
+- name: Install and Configure kibana
+  hosts: kibana
+  become: true
+  gather_facts: true
+  roles:
+    - nginx
+    - kibana
+
+- name: Install and Configure logstash
+  hosts: logstash
+  become: true
+  gather_facts: true
+  roles:
+    - logstash
+
+- name: Install and Configure filebeat
+  hosts: droplets
+  become: true
+  gather_facts: true
+  roles:
+    - filebeat

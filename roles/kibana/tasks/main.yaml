@@ -1,0 +1,16 @@
+---
+
+- name: Install Kibana
+  ansible.builtin.apt:
+    update_cache: true
+    name: kibana
+    state: present
+
+- name: Copy template
+  ansible.builtin.template:
+    src: kibana.yml.j2
+    dest: /etc/kibana/kibana.yml
+    owner: root
+    group: root
+    mode: 0644
+  notify: Restart kibana

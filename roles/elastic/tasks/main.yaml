@@ -1,0 +1,46 @@
+---
+
+- name: Install elasticsearch
+  ansible.builtin.apt:
+    update_cache: true
+    name: elasticsearch
+    state: present
+
+- name: Create directories for elasticsearch
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: elasticsearch
+    group: elasticsearch
+    mode: 0755
+  loop:
+    - /usr/share/elasticsearch/data
+    - /usr/share/elasticsearch/logs
+
+- name: Copy template
+  ansible.builtin.template:
+    src: elasticsearch.yml.j2
+    dest: /etc/elasticsearch/elasticsearch.yml
+    owner: root
+    group: root
+    mode: 0644
+  notify: Restart elasticsearch
+
+# - name: Allow Kibana and Logstash to connect to Elasticsearch
+#   community.general.ufw:
+#     rule: allow
+#     port: '9200'
+#     proto: tcp
+#     src: "{{ item }}"
+#   loop:
+#     - "{{ hostvars['kibana'].private_address }}"
+#     - "{{ hostvars['logstash'].private_address }}"
+  
+  
+- name: Ensure elasticsearch is running
+  ansible.builtin.service:
+    name: elasticsearch
+    state: started
+    enabled: true
+
+
