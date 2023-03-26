@@ -8,8 +8,8 @@ server {
   listen 443 ssl;
   server_name {{ KIBANA_FQDN }};
 
-  #auth_basic "Restricted Access";
-  #auth_basic_user_file /etc/nginx/.htpasswd;
+#   auth_basic "Restricted Access";
+#   auth_basic_user_file /etc/nginx/.htpasswd;
 
   ssl_certificate {{ NGINX_CERTIFICATE_PATH }};
   ssl_certificate_key {{ NGINX_CERTIFICATE_KEY_PATH }};

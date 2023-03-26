@@ -14,3 +14,15 @@
     group: root
     mode: 0644
   notify: Restart kibana
+
+# - name: Create keystore
+#   shell: kibana-keystore create
+#   changed_when: false
+#   notify: Restart kibana
+
+# - name: Add elasticsearch password to keystore
+#   shell: /usr/share/kibana/bin/kibana-keystore add elasticsearch.password
+#   args:
+#     stdin: "y\n{{ KIBANA_ELASTIC_PASSWORD }}"
+#   changed_when: false
+#   notify: Restart kibana

@@ -19,3 +19,10 @@
         - { droplet_name: "elastic03" }
         - { droplet_name: "kibana" }
         - { droplet_name: "logstash" }
+    - name: Remove A record
+      community.digitalocean.digital_ocean_domain_record:
+        state: absent
+        oauth_token: "{{ DIGITALOCEAN_API_TOKEN }}"
+        domain: "{{ DOMAIN_NAME }}"
+        type: A
+        name: kibby

@@ -21,3 +21,38 @@
   ansible.builtin.apt_repository:
     repo: deb https://artifacts.elastic.co/packages/8.x/apt stable main
     state: present
+
+- name: Set Europe/Tallinn timezone
+  ansible.builtin.timezone:
+    name: Europe/Tallinn
+
+- name: Install fail2ban
+  ansible.builtin.apt:
+    name: fail2ban
+    state: present
+
+- name: Ensure fail2ban is running
+  ansible.builtin.service:
+    name: fail2ban
+    state: started
+    enabled: true
+
+- name: Install unattended upgrades
+  ansible.builtin.apt:
+    name: unattended-upgrades
+    state: present
+
+- name: Ensure unattended upgrades is running
+  ansible.builtin.service:
+    name: unattended-upgrades
+    state: started
+    enabled: true
+
+- name: Copy 50unattended-upgrades
+  ansible.builtin.copy:
+    src: 50unattended-upgrades
+    dest: /etc/apt/apt.conf.d/50unattended-upgrades
+    owner: root
+    group: root
+    mode: 0644
+  notify: Restart unattended-upgrades

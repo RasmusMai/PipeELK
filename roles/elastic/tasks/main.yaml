@@ -26,21 +26,21 @@
     mode: 0644
   notify: Restart elasticsearch
 
-# - name: Allow Kibana and Logstash to connect to Elasticsearch
-#   community.general.ufw:
-#     rule: allow
-#     port: '9200'
-#     proto: tcp
-#     src: "{{ item }}"
-#   loop:
-#     - "{{ hostvars['kibana'].private_address }}"
-#     - "{{ hostvars['logstash'].private_address }}"
-  
-  
-- name: Ensure elasticsearch is running
+- name: Ensure elasticsearch service is enabled
   ansible.builtin.service:
     name: elasticsearch
-    state: started
     enabled: true
 
+# - name: Reset elastic password
+#   shell: /usr/share/elasticsearch/bin/elasticsearch-reset-password -i -u elastic
+#   args:
+#     stdin: "y\n{{ ELASTIC_PASSWORD }}\n{{ ELASTIC_PASSWORD }}"
+#   changed_when: false
+#   notify: Restart elasticsearch
 
+# - name: Reset kibana password
+#   shell: /usr/share/elasticsearch/bin/elasticsearch-reset-password -i -u "{{ KIBANA_ELASTIC_USER }}"
+#   args:
+#     stdin: "y\n{{ KIBANA_ELASTIC_PASSWORD }}\n{{ KIBANA_ELASTIC_PASSWORD }}"
+#   changed_when: false
+#   notify: Restart elasticsearch

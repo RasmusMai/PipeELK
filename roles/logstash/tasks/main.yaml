@@ -1,7 +1,70 @@
-
+---
 
 - name: Install Logstash
   ansible.builtin.apt:
     update_cache: true
-    name: kibana
+    name: logstash
     state: present
+
+# - name: Copy Logstash configuration file
+#   ansible.builtin.template:
+#     src: logstash.conf.j2
+#     dest: /etc/logstash/logstash.conf
+#     owner: root
+#     group: root
+#     mode: 0644
+#   notify: restart logstash
+
+- name: Create Logstash configuration files
+  template:
+    src: "{{ item }}.j2"
+    dest: "/etc/logstash/conf.d/{{ item }}"
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - 01-beats-input.conf
+    - 30-elasticsearch-output.conf
+  notify: restart logstash
+
+- name: Copy Logstash filters
+  copy:
+    src: "filters/{{ item }}"
+    dest: "/etc/logstash/conf.d/{{ item }}"
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - 10-syslog.conf
+    - 11-nginx.conf
+  notify: restart logstash
+
+- name: Get list of installed plugins
+  command: >
+    /usr/share/logstash/bin/logstash-plugin list
+  register: logstash_plugins_list
+  changed_when: false
+
+- name: Install configured plugins
+  command: /usr/share/logstash/bin/logstash-plugin install {{ item }}
+  with_items: "{{ LOGSTASH_PLUGINS }}"
+  when: "item not in logstash_plugins_list.stdout"
+  notify: restart logstash
+
+- name: Ensure correct permissions on Logstash directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: logstash
+    group: logstash
+    recurse: true
+    mode: 0755
+  loop:
+    - /usr/share/logstash/data
+    - /usr/share/logstash/logs
+
+- name: Ensure Logstash is running
+  service:
+    name: logstash
+    state: started
+    enabled: true

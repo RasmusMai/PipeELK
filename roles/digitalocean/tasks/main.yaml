@@ -42,11 +42,12 @@
   loop: "{{ droplets.results }}"
   changed_when: false  # Only the in-memory inventory is being updated
 
-# - name: Create A record for kibana
-#   community.digitalocean.digital_ocean_domain_record:
-#     state: present
-#     oauth_token: "{{ DIGITALOCEAN_API_TOKEN }}"
-#     domain: "{{ DOMAIN_NAME }}"
-#     type: A
-#     name: kibana
-#     data: "{{ (droplets.results | selectattr('data.droplet.name', 'equalto', 'kibana')).0.data.droplet.networks.v4 | selectattr('type', 'equalto', 'public')).0.ip_address | default('<none>', true) }}"
+- name: Create A record for kibana
+  community.digitalocean.digital_ocean_domain_record:
+    state: present
+    oauth_token: "{{ DIGITALOCEAN_API_TOKEN }}"
+    domain: "{{ DOMAIN_NAME }}"
+    type: A
+    ttl: 300
+    name: kibby
+    data: "{{ hostvars['kibana'].ansible_ssh_host }}"

@@ -37,6 +37,7 @@
       - "DNS:{{ KIBANA_FQDN }}"
       - "DNS:www.{{ KIBANA_FQDN }}"
   register: csr
+  changed_when: false
 
 - name: Generate self-signed SSL certificate
   community.crypto.x509_certificate:

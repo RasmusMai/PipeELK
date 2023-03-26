@@ -1,6 +1,6 @@
 ---
 
-- name: restart logstash
+- name: restart filebeat
   ansible.builtin.service:
-    name: logstash
+    name: filebeat
     state: restarted

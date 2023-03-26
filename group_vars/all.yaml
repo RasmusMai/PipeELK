@@ -1,40 +1,31 @@
 ---
 
+# Might be of interest
+KIBANA_FQDN: "kibby.cloud.aoi.ee"
+DOMAIN_NAME: "cloud.aoi.ee"
+
+# DigitalOcean
+DIGITALOCEAN_REGION: ams3
+DIGITALOCEAN_IMAGE: ubuntu-22-04-x64
+DIGITALOCEAN_PROJECT_NAME: PipeELK
+
 # SSH key settings
 SSH_NAME: ansible
 SSH_PUBLIC_KEY: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
 SSH_PRIVATE_KEY: "~/.ssh/id_rsa"
 
-
-# DO droplet settings
-DIGITALOCEAN_REGION: ams3
-DIGITALOCEAN_IMAGE: ubuntu-22-04-x64
-DIGITALOCEAN_PROJECT_NAME: PipeELK
-
 # ElasticSearch
 CLUSTER_NAME: "PipeELK-cluster"
-KIBANA_ELASTIC_USER: "kibana"
-KIBANA_ELASTIC_PASSWORD: "changeme"
-KIBANA_FQDN: "kibana.cloud.aoi.ee"
-DOMAIN_NAME: "cloud.aoi.ee"
-NGINX_CERTIFICATE_PATH: "/etc/nginx/ssl/kibana.cloud.aoi.ee.crt"
-NGINX_CERTIFICATE_KEY_PATH: "/etc/nginx/ssl/kibana.cloud.aoi.ee.key"
+KIBANA_ELASTIC_USER: "kibana_system"
+KIBANA_ELASTIC_PASSWORD: "elastic1234"
+ELASTIC_PASSWORD: "elastic1234"
 
+# Kibana
+NGINX_CERTIFICATE_PATH: "/etc/nginx/ssl/kibby.cloud.aoi.ee.crt"
+NGINX_CERTIFICATE_KEY_PATH: "/etc/nginx/ssl/kibby.cloud.aoi.ee.key"
 
-# System user to create
-ssh_user: "{{ lookup('env', 'USERNAME') }}"
-ssh_groups: "sudo"
-ssh_pub_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
-
-# UFW
-UFW_ALLOW_PORTS:
-  - 22
-  - 80
-
-# Logwatch
-logwatch_email: "root@localhost"  # Email Address which Logwatch reports to
-logwatch_detail: "low"            # The level of detail in the Logwatch report
-logwatch_range: "yesterday"       # The default time range for the Logwatch report
-logwatch_output: "stdout"         # The output method of the Logwatch report
-logwatch_format: "text"           # The format of the Logwatch report
-logwatch_cron_time: "daily"       # Cron special time specification nickname - must match with logwatch range!
+# Logstash
+LOGSTASH_LISTEN_PORT: 5044
+LOGSTASH_PLUGINS:
+  - logstash-input-beats
+  - logstash-filter-multiline

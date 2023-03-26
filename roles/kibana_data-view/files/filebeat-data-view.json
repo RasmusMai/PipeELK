@@ -1,0 +1,6 @@
+{
+    "data_view": {
+        "title": "filebeat-*",
+        "name": "Filebeat Data View"
+    }
+}
