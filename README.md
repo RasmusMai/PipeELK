@@ -47,6 +47,7 @@ Which will create:
 - DNS A record for Kibana
 - Filebeats on all hosts
 - nginx for Kibana with a self-signed certificate
+- Internal communication though not secured, is only done on the private network
 - Some standard OS configuration
     - Fail2Ban
     - Unattended upgrades
