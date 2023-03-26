@@ -1,6 +1,9 @@
 # Setting up
 
 # Overview
+
+This is a pure-Ansible realization of the given exercise. It is not intended to be used in production, but rather as a proof of concept.
+
 The services are currently deployed on bare VMs as DigitalOcean droplets. Initially, I debated the utility of Docker, but concluded that each ElasticSearch instance required its own VM host, rendering Docker unnecessary.
 
 Due to time constraints, I could not secure the internal workings of the system in its current phase. Although I have used ElasticSearch and Kibana as an end-user, this was my first attempt at setting the stack up.
