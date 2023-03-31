@@ -1,5 +1,12 @@
 # Setting up
 
+# :warning: Read this! :warning:
+**I've made significant improvements to this repository since the initial submission. Instead of updating the main branch, I've put everything new in the [`improvements`](https://github.com/RasmusMai/PipeELK/tree/improvements) branch.**
+
+---
+
+Please switch to the `improvements` branch to see the latest changes and improvements. Thank you for your attention!
+
 # Overview
 
 This is a pure-Ansible realization of the given exercise. It is not intended to be used in production, but rather as a proof of concept. My approach focused on pure automation, rather than security or performance.
