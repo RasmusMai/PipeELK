@@ -111,8 +111,7 @@
   register: demo_user
   when: inventory_hostname == "elastic01"
 
-
 # Throws warnings for using variables in the condition :)
 - name: Add demo user
-  ansible.builtin.shell: "/usr/share/elasticsearch/bin/elasticsearch-users useradd {{ KIBANA_WEB_USER }} -p {{ KIBANA_WEB_PASSWORD }} -r kibana_admin,viewer"
+  ansible.builtin.shell: "/usr/share/elasticsearch/bin/elasticsearch-users useradd {{ KIBANA_WEB_USER }} -p {{ KIBANA_WEB_PASSWORD }} -r kibana_admin,viewer,editor"
   when: inventory_hostname == "elastic01" and "{{ KIBANA_WEB_USER }}" not in demo_user.stdout
