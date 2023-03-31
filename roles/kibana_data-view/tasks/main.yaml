@@ -1,13 +1,16 @@
 ---
 
-- name: Wait for a Filebeat index to appear
+- name: Wait for a Logstash index to appear
   ansible.builtin.uri:
-    url: "http://{{ hostvars['elastic01'].private_address }}:9200/_cat/indices?format=json"
+    url: "https://{{ hostvars['elastic01'].private_address }}:9200/_cat/indices?format=json"
     method: GET
     status_code: 200
-    validate_certs: no
-  register: filebeat_index_response
-  until: filebeat_index_response.json | selectattr('index', 'search', 'filebeat') | list | length > 0
+    url_username: "elastic"
+    url_password: "{{ ELASTIC_PASSWORD }}"
+    validate_certs: false
+    force_basic_auth: true
+  register: logstash_index_response
+  until: logstash_index_response.json | selectattr('index', 'search', 'logstash') | list | length > 0
   retries: 10
   delay: 10
   changed_when: false
@@ -19,29 +22,27 @@
     status_code: 
       - 200 
       - 404
-    validate_certs: no
-    url_username: "{{ KIBANA_WEB_USER }}"
-    url_password: "{{ KIBANA_WEB_PASSWORD }}"
-  register: filebeat_data_view_response
+    validate_certs: false
+    url_username: "elastic"
+    url_password: "{{ ELASTIC_PASSWORD }}"
+    force_basic_auth: true
+  register: logstash_data_view_response
   changed_when: false
-  when: filebeat_index_response.json | selectattr('index', 'search', 'filebeat') | list | length > 0
-
-- name: debug
-  debug:
-    msg: "{{ filebeat_data_view_response.json }}"
+  when: logstash_index_response.json | selectattr('index', 'search', 'logstash') | list | length > 0
 
 - name: Create filebeat data view
   ansible.builtin.uri:
     url: "https://{{ KIBANA_FQDN }}/api/data_views/data_view"
     method: POST
     status_code: 200
-    validate_certs: no
+    validate_certs: false
     headers:
       Content-Type: "application/json"
       kbn-xsrf: "ansible"
     body: "{{ lookup('file', 'filebeat-data-view.json') }}"
     body_format: json
-    url_username: "{{ KIBANA_WEB_USER }}"
-    url_password: "{{ KIBANA_WEB_PASSWORD }}"
-  register: filebeat_data_view_response
-  when: filebeat_data_view_response.json.data_view | selectattr('title', 'search', 'filebeat') | list | length == 0
+    url_username: "elastic"
+    url_password: "{{ ELASTIC_PASSWORD }}"
+    force_basic_auth: true
+  register: logstash_data_view_response
+  when: logstash_data_view_response.json.data_view | selectattr('title', 'search', 'logstash') | list | length == 0

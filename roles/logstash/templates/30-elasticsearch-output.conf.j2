@@ -2,7 +2,11 @@ output {
   if [@metadata][beat] {
     elasticsearch {
       hosts => ["{{ hostvars['elastic01'].private_address }}:9200", "{{ hostvars['elastic02'].private_address }}:9200", "{{ hostvars['elastic03'].private_address }}:9200"]
-      index => "%{[@metadata][beat]}-%{+YYYY.MM.dd}"
+      index => "logstash-%{+YYYY.MM.dd}"
+      user => "elastic"
+      password => "{{ ELASTIC_PASSWORD }}"
+      ssl => true
+      ssl_certificate_verification => false
     }
   }
 }

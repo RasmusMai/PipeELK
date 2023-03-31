@@ -4,6 +4,9 @@
   ansible.builtin.package:
     name: filebeat
     state: present
+  # For some yet unknown reason, specifically the Logstash VM can lock apt for longer than expected from previous tasks
+  retries: 3
+  delay: 10
 
 - name: Copy filebeat configuration
   ansible.builtin.template:

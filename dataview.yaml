@@ -1,0 +1,17 @@
+---
+
+- name: Initialize droplets
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - secret.yaml
+  roles:
+    - digitalocean
+
+- name: Configure data view
+  hosts: kibana
+  gather_facts: false
+  become: true
+  roles:
+    - kibana_data-view

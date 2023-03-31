@@ -1,5 +1,8 @@
 ---
 
+# Passwords are left unencrypted on purpose.
+# I am well aware and accustomed with ansible-vault.
+
 # Might be of interest
 KIBANA_FQDN: "kibby.cloud.aoi.ee"
 DOMAIN_NAME: "cloud.aoi.ee"
@@ -19,15 +22,19 @@ CLUSTER_NAME: "PipeELK-cluster"
 KIBANA_ELASTIC_USER: "kibana_system"
 KIBANA_ELASTIC_PASSWORD: "elastic1234"
 ELASTIC_PASSWORD: "elastic1234"
+ELASTIC_CA_KEYSTORE_PASSWORD: "elastic1234"
+ELASTIC_KEYSTORE_PASSWORD: "elastic1234"
 
 # Kibana
 NGINX_CERTIFICATE_PATH: "/etc/nginx/ssl/kibby.cloud.aoi.ee.crt"
 NGINX_CERTIFICATE_KEY_PATH: "/etc/nginx/ssl/kibby.cloud.aoi.ee.key"
-HTPASSWD_ACCOUNT: "PipeKibana:$apr1$ic5qtdws$54YFpvEAfp9ZY/r3.FCfd/"
 KIBANA_WEB_USER: "PipeKibana"
 KIBANA_WEB_PASSWORD: "KibanaDrive"
 
+
 # Logstash
+LOGSTASH_ELASTIC_USER: "logstash_system"
+LOGSTASH_ELASTIC_PASSWORD: "elastic1234"
 LOGSTASH_LISTEN_PORT: 5044
 LOGSTASH_PLUGINS:
   - logstash-input-beats

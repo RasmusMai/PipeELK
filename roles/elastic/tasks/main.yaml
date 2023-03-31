@@ -26,21 +26,93 @@
     mode: 0644
   notify: Restart elasticsearch
 
-- name: Ensure elasticsearch service is enabled
+- name: Check if certs file exists  # we assume whether setup is done or not based on this file
+  ansible.builtin.stat:
+    path: /etc/elasticsearch/certs/elastic-certificates.p12
+  register: certs_file
+
+- name: Check if CA file exists
+  ansible.builtin.stat:
+    path: /usr/share/elasticsearch/elastic-stack-ca.p12
+  register: ca_file
+  when: inventory_hostname == "elastic01" and not certs_file.stat.exists
+
+- name: Generate CA
+  ansible.builtin.shell: |
+    /usr/share/elasticsearch/bin/elasticsearch-certutil ca \
+    --out /usr/share/elasticsearch/elastic-stack-ca.p12 \
+    --pass {{ ELASTIC_CA_KEYSTORE_PASSWORD }} \
+    --silent
+  when: inventory_hostname == "elastic01" and not certs_file.stat.exists and not ca_file.stat.exists
+
+- name: Generate certs
+  ansible.builtin.shell: |
+    /usr/share/elasticsearch/bin/elasticsearch-certutil cert \
+      --ca /usr/share/elasticsearch/elastic-stack-ca.p12 \
+      --ca-pass {{ ELASTIC_CA_KEYSTORE_PASSWORD }} \
+      --pass {{ ELASTIC_KEYSTORE_PASSWORD }} \
+      --out /usr/share/elasticsearch/elastic-certificates.p12 \
+      --silent
+  when: inventory_hostname == "elastic01" and not certs_file.stat.exists
+
+- name: Fetch certs
+  ansible.builtin.fetch:
+    src: /usr/share/elasticsearch/elastic-certificates.p12
+    dest: /tmp/elastic-certificates.p12
+    flat: true
+  when: inventory_hostname == "elastic01" and not certs_file.stat.exists
+
+- name: Copy certs
+  ansible.builtin.copy:
+    src: /tmp/elastic-certificates.p12
+    dest: /etc/elasticsearch/certs/elastic-certificates.p12
+    owner: root
+    group: elasticsearch
+    mode: 0640
+  when: not certs_file.stat.exists
+  notify: Restart elasticsearch
+
+- name: Add keystore password
+  ansible.builtin.shell: |
+    /usr/share/elasticsearch/bin/elasticsearch-keystore add xpack.security.transport.ssl.keystore.secure_password -f
+  args: 
+    stdin: "{{ ELASTIC_KEYSTORE_PASSWORD }}"
+  when: not certs_file.stat.exists
+
+- name: Add truststore password
+  ansible.builtin.shell: |
+    /usr/share/elasticsearch/bin/elasticsearch-keystore add xpack.security.transport.ssl.truststore.secure_password -f
+  args:
+    stdin: "{{ ELASTIC_KEYSTORE_PASSWORD }}"
+  when: not certs_file.stat.exists
+
+- name: Ensure elasticsearch service is enabled and running
   ansible.builtin.service:
     name: elasticsearch
+    state: started
     enabled: true
 
-# - name: Reset elastic password
-#   shell: /usr/share/elasticsearch/bin/elasticsearch-reset-password -i -u elastic
-#   args:
-#     stdin: "y\n{{ ELASTIC_PASSWORD }}\n{{ ELASTIC_PASSWORD }}"
-#   changed_when: false
-#   notify: Restart elasticsearch
+- name: Reset elastic password
+  ansible.builtin.shell: /usr/share/elasticsearch/bin/elasticsearch-reset-password -i -u elastic
+  args:
+    stdin: "y\n{{ ELASTIC_PASSWORD }}\n{{ ELASTIC_PASSWORD }}"
+  retries: 10  # Elastic takes a while to start up
+  delay: 10
+  when: inventory_hostname == "elastic01"
 
-# - name: Reset kibana password
-#   shell: /usr/share/elasticsearch/bin/elasticsearch-reset-password -i -u "{{ KIBANA_ELASTIC_USER }}"
-#   args:
-#     stdin: "y\n{{ KIBANA_ELASTIC_PASSWORD }}\n{{ KIBANA_ELASTIC_PASSWORD }}"
-#   changed_when: false
-#   notify: Restart elasticsearch
+- name: Reset kibana password
+  ansible.builtin.shell: /usr/share/elasticsearch/bin/elasticsearch-reset-password -i -u "{{ KIBANA_ELASTIC_USER }}"
+  args:
+    stdin: "y\n{{ KIBANA_ELASTIC_PASSWORD }}\n{{ KIBANA_ELASTIC_PASSWORD }}"
+  when: inventory_hostname == "elastic01"
+
+- name: Check if demo user already exists
+  ansible.builtin.shell: /usr/share/elasticsearch/bin/elasticsearch-users list
+  register: demo_user
+  when: inventory_hostname == "elastic01"
+
+
+# Throws warnings for using variables in the condition :)
+- name: Add demo user
+  ansible.builtin.shell: "/usr/share/elasticsearch/bin/elasticsearch-users useradd {{ KIBANA_WEB_USER }} -p {{ KIBANA_WEB_PASSWORD }} -r kibana_admin,viewer"
+  when: inventory_hostname == "elastic01" and "{{ KIBANA_WEB_USER }}" not in demo_user.stdout

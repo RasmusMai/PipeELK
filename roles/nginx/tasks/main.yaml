@@ -52,25 +52,10 @@
     src: /etc/nginx/sites-available/kibana
     dest: /etc/nginx/sites-enabled/kibana
     state: link
+  notify: Reload nginx
 
 - name: Disable default site
   ansible.builtin.file:
     path: /etc/nginx/sites-enabled/default
     state: absent
-
-- name: Install htpasswd
-  apt:
-    name: apache2-utils
-    state: present
-
-- name: Copy .htpasswd
-  copy:
-    src: "{{ item }}"
-    dest: /etc/nginx/
-  with_items:
-    - .htpasswd
-
-- name: Reload Nginx configuration
-  systemd:
-    name: nginx
-    state: reloaded
+  notify: Reload nginx

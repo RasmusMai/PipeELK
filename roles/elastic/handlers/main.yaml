@@ -4,3 +4,24 @@
   ansible.builtin.service:
     name: elasticsearch
     state: restarted
+
+# - name: Reload secure settings with curl
+#   ansible.builtin.uri:
+#     url: "http://{{ ansible_facts.private_address }}9200/_nodes/reload_secure_settings"  # 
+#     method: POST
+#     body: {}
+#     body_format: json
+#     status_code: 200
+#     validate_certs: false
+#     user: elastic
+#     password: "{{ ELASTIC_PASSWORD }}"
+#     # force_basic_auth: true
+#   register: reload_secure_settings
+#   until: reload_secure_settings.status == 200
+#   retries: 10
+#   delay: 10
+#   changed_when: false
+
+- name: Reload systemd
+  ansible.builtin.systemd:
+    daemon_reload: true

@@ -43,12 +43,14 @@
 
 - name: Install and Configure filebeat
   hosts: droplets
+  gather_facts: false
   become: true
   roles:
     - filebeat
 
 - name: Configure data view
   hosts: kibana
+  gather_facts: false
   become: true
   roles:
     - kibana_data-view
