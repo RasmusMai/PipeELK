@@ -39,7 +39,7 @@
     headers:
       Content-Type: "application/json"
       kbn-xsrf: "ansible"
-    body: "{{ lookup('file', 'filebeat-data-view.json') }}"
+    body: "{{ lookup('file', 'logstash-data-view.json') }}"
     body_format: json
     url_username: "elastic"
     url_password: "{{ ELASTIC_PASSWORD }}"

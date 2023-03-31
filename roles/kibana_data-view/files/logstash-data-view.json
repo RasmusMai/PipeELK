@@ -1,0 +1,6 @@
+{
+    "data_view": {
+        "title": "logstash-*",
+        "name": "Logstash Data View"
+    }
+}
