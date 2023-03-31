@@ -1,5 +1,3 @@
-# Setting up
-
 # What's new?
 
 I've added the following in addition to what's in the `main` branch:
@@ -77,7 +75,8 @@ Which will create:
 - DNS A record for Kibana
 - Filebeats on all hosts
 - nginx for Kibana with a self-signed certificate
-- Internal communication though not secured, is only done on the private network
+- Secured internal communication
+- Demo account for Kibana guest access
 - Some standard OS configuration
     - Fail2Ban
     - Unattended upgrades
