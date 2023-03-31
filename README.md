@@ -4,10 +4,11 @@
 
 I've added the following in addition to what's in the `main` branch:
 - Internal node communication is now secured with TLS
-- HTTPS is used internally and requires authentication
-- Automatically generated CA and certificates for the elasticsearch
+- HTTPS is used internally and requires basic authentication
+- Automatically generated CA and certificates for elasticsearch
     - Kibana doesn't do TLS herself, it's delegated to nginx.
-    - All components are using self-signed certificates, so certificate validation has been disabled.
+    - All components are using self-signed certificates, so certificate validation has been disabled.  
+      *(Though this could be solved by deploying the CA to all applicable services.)*
 - Kibana now uses native authentication instead of relying on nginx.
 - xpack is now enabled on all nodes
 
@@ -23,7 +24,7 @@ Still to do:
 - Optimize resource usage in cloud.
     - 2 vCPUs, 4GB RAM for each machine
     - Started with the lowest tier, but upgraded as ElasticSearch was starving of memory even with Java options.
-    - As a nice plus, everything runs a bit faster!
+    - Though, it definitely sped up testing and debugging.
 
 # Overview
 
@@ -47,7 +48,7 @@ Though there are no actual backups implemented, I would have used a combination 
 - Snapshotting ElasticSearch cluster as per the official [documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/snapshot-restore.html)
     - Ideally storing them on DigitalOcean's block storage (Volumes)
     - Daily incrementals, weekly fulls
-- Other aspects of the environment currently store no data, so they would not require backups.
+- Other aspects of the environment currently store no data, so we don't need backups of them in the traditional sense.
     - These can be entirely restored using configuration management.
 
 # Set up
